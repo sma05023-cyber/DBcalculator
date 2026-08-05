@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>학교회계 교육공무직원 퇴직연금(DB) 모의 계산기</title>
+    <!-- 세련된 폰트(Pretendard) 로드 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    
+    <style>
+        :root {
+            --primary-navy: #3b577d;     
+            --primary-green: #215c54;    
+            --bg-light: #f4f5f8;         
+            --box-bg: #ffffff;           
+            --input-bg: #f8f9fa;         
+            --border-color: #e9ecef;
+            --text-main: #333333;
+            --text-muted: #6c757d;
+        }
+
+        body { 
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            margin: 0;
+            padding: 40px 20px; 
+            background-color: var(--bg-light); 
+            color: var(--text-main);
+        }
+
+        .layout-wrapper {
+            display: flex;
+            gap: 25px;
+            max-width: 1500px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .calculator-container { 
+            flex: 6;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        .example-container {
+            flex: 4;
+            background-color: var(--box-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            overflow: hidden;
+            position: sticky;
+            top: 40px;
+        }
+
+        .main-header {
+            background-color: var(--primary-navy);
+            color: #ffffff;
+            font-size: 1.6em;
+            font-weight: 700;
+            text-align: center;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(59, 87, 125, 0.2);
+            letter-spacing: -0.5px;
+        }
+
+        .content-box {
+            background-color: var(--box-bg);
+            padding: 35px 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            overflow-x: auto;
+        }
+
+        .section-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--text-main);
+        }
+        .section-title-row h2 {
+            flex: 1;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        h2 { 
+            font-size: 1.25em; 
+            color: #212529; 
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--text-main);
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: #495057;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"], input[type="date"], input[type="number"], select { 
+            width: 100%;
+            padding: 12px 15px; 
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            font-size: 0.95em;
+            box-sizing: border-box;
+            font-family: inherit;
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #adb5bd;
+            background-color: #ffffff;
+        }
+
+        .info-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+
+        .period-row { 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .period-row > div { flex: 1; }
+        .period-row span { font-weight: 600; color: #adb5bd; }
+
+        .total-days-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 15px;
+            height: 44px;
+        }
+        .total-days-box input {
+            border: none;
+            background: transparent;
+            width: 60px;
+            padding: 0;
+            text-align: right;
+            font-weight: 700;
+            font-size: 1.05em;
+            color: var(--primary-navy);
+        }
+
+        .btn-confirm {
+            width: 100%;
+            background-color: var(--primary-green);
+            color: white;
+            font-size: 1.15em;
+            font-weight: 700;
+            border: none;
+            padding: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 10px;
+        }
+        .btn-confirm:hover { background-color: #1a4a43; }
+        .btn-confirm:active { transform: scale(0.99); }
+
+        .btn-add { 
+            padding: 9px 18px; 
+            background-color: #f1f3f5; 
+            color: #495057; 
+            border: 1px solid #ced4da; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .btn-add:hover { background-color: #e9ecef; }
+        
+        .btn-remove { 
+            padding: 9px 18px; 
+            background-color: #fff5f5; 
+            color: #e03131; 
+            border: 1px solid #ffc9c9; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .btn-remove:hover { background-color: #ffe3e3; }
+
+        .btn-delete { 
+            padding: 6px 12px; 
+            background-color: #fa5252; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.85em;
+        }
+
+        table.calc-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            background-color: #fff;
+            table-layout: auto; 
+        }
+        table.calc-table th, table.calc-table td { 
+            border: 1px solid var(--border-color); 
+            padding: 10px 8px; 
+            text-align: center; 
+            vertical-align: middle;
+        }
+        table.calc-table th { 
+            background-color: var(--input-bg); 
+            color: var(--text-main); 
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+        table.calc-table td input[type="text"] { 
+            width: 100%; 
+            min-width: 50px; 
+            padding: 8px 6px; 
+            text-align: right; 
+            background-color: #ffffff;
+            box-sizing: border-box;
+        }
+        table.calc-table td input[type="text"].item-name {
+            text-align: center; 
+            background-color: var(--input-bg);
+            border: 1px dashed #ced4da;
+            font-weight: 600;
+        }
+        table.calc-table td input.transparent-input {
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            text-align: center;
+        }
+        table.calc-table td input.transparent-input.right-align {
+            text-align: right;
+            color: #d9480f;
+            font-size: 1.05em;
+        }
+        .sum-row td {
+            background-color: var(--bg-light);
+            font-weight: 700;
+        }
+
+        .period-display-td {
+            font-weight: 600; 
+            color: #495057; 
+            font-size: 0.9em; 
+            line-height: 1.5;
+            min-width: 60px;
+        }
+
+        .result-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.05em;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #ced4da;
+            color: #495057;
+        }
+        .result-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .result-row.total-row {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary-navy);
+            padding-top: 10px;
+        }
+        
+        .formula-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .formula-table td {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            font-size: 1.05em;
+        }
+        .formula-table .title-col {
+            background-color: var(--input-bg);
+            width: 35%;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .highlight-final {
+            color: #e03131;
+            font-size: 1.25em;
+            font-weight: 800;
+        }
+
+        .tooltip-label {
+            position: relative;
+            cursor: help;
+            color: var(--primary-navy);
+            text-decoration: underline dotted var(--primary-navy);
+            text-underline-offset: 4px;
+        }
+        .tooltip-label::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #212529;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-size: 0.85em;
+            font-weight: normal;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .tooltip-label::before {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #212529 transparent transparent transparent;
+            display: none;
+            z-index: 100;
+        }
+        .tooltip-label:hover::after, .tooltip-label:hover::before { display: block; }
+
+        .example-header {
+            background-color: var(--primary-navy);
+            color: #ffffff;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.2em;
+            padding: 20px;
+        }
+        .example-body {
+            padding: 30px;
+            font-size: 0.95em;
+            line-height: 1.7;
+            color: #495057;
+        }
+        .example-body ul {
+            padding-left: 20px;
+            margin-bottom: 25px;
+        }
+        .example-body li { margin-bottom: 8px; }
+        .ex-subtitle {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+        table.ex-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        table.ex-table th, table.ex-table td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+        }
+        table.ex-table th {
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        .ex-footer {
+            margin-top: 30px;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            background-color: var(--input-bg);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .ex-footer a { color: var(--primary-navy); font-weight: 600; text-decoration: none; }
+        .ex-footer a:hover { text-decoration: underline; }
+
+        .smart-parse-alert {
+            background-color: #e2f0d9;
+            border: 1px solid #a9d18e;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            color: #2b8a3e;
+            display: none;
+            line-height: 1.5;
+        }
+        .smart-parse-alert strong { color: #1971c2; }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .btn-reset, .btn-print {
+            border: none;
+            border-radius: 7px;
+            padding: 9px 13px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+        .btn-reset {
+            background: #f1f3f5;
+            color: #495057;
+            border: 1px solid #ced4da;
+        }
+        .btn-reset:hover {
+            background: #e9ecef;
+        }
+        .btn-print {
+            background: var(--primary-navy);
+            color: #ffffff;
+        }
+        .btn-print:hover {
+            background: #2e4665;
+        }
+        
+        #printSheet {
+            display: none;
+        }
+
+        [contenteditable="true"] {
+            transition: all 0.2s;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        [contenteditable="true"]:hover {
+            background-color: #e2e5e9;
+            cursor: text;
+        }
+        [contenteditable="true"]:focus {
+            background-color: #ffffff;
+            outline: 2px solid var(--primary-navy);
+            box-shadow: 0 0 5px rgba(59, 87, 125, 0.3);
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 9mm 8mm;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: "Malgun Gothic", sans-serif;
+            }
+            .layout-wrapper,
+            .example-container,
+            .header-actions {
+                display: none !important;
+            }
+            #printSheet {
+                display: block !important;
+                width: 100%;
+                font-size: 8.2pt;
+                line-height: 1.2;
+            }
+            .print-title {
+                margin: 0 0 8px;
+                text-align: center;
+                font-size: 16pt;
+                font-weight: 800;
+            }
+            .print-section-title {
+                margin: 8px 0 3px;
+                font-size: 9pt;
+                font-weight: 800;
+            }
+            .print-info-table,
+            .print-table,
+            .print-result-table {
+                width: 100%;
+                table-layout: fixed;
+                border-collapse: collapse;
+                page-break-inside: avoid;
+            }
+            .print-info-table th,
+            .print-info-table td,
+            .print-table th,
+            .print-table td,
+            .print-result-table th,
+            .print-result-table td {
+                border: 1px solid #555;
+                padding: 3px 4px;
+                vertical-align: middle;
+            }
+            .print-info-table th,
+            .print-table th,
+            .print-result-table th {
+                background: #eeeeee !important;
+                font-weight: 700;
+                text-align: center;
+            }
+            .print-info-table th { width: 18%; }
+            .print-info-table td { text-align: center; }
+            .print-table th, .print-table td { text-align: right; }
+            .print-table th:first-child,
+            .print-table td:first-child {
+                width: 27%;
+                text-align: center;
+            }
+            .print-table tfoot th,
+            .print-table tfoot td {
+                background: #f3f3f3 !important;
+                font-weight: 800;
+            }
+            .print-result-table th { width: 22%; }
+            .print-result-table td {
+                width: 28%;
+                text-align: right;
+                font-weight: 600;
+            }
+            .print-final { font-weight: 800 !important; }
+            .print-current-final {
+                color: #b00020;
+                font-size: 11pt;
+                font-weight: 800 !important;
+                text-align: right;
+            }
+            .print-date {
+                margin-top: 7px;
+                text-align: right;
+                font-size: 7.5pt;
+                color: #555;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-wrapper">
+        <!-- 왼쪽: 퇴직금 계산기 -->
+        <div class="calculator-container">
+            <div class="main-header">
+                학교회계 교육공무직원 퇴직연금(DB) 모의 계산기
+            </div>
+
+            <!-- 1. 기본 정보 -->
+            <div class="content-box">
+                <h2>1. 기본 정보</h2>
+                <div class="info-grid">
+                    <div>
+                        <label>성 명</label>
+                        <input type="text" id="workerName" placeholder="이름 입력">
+                    </div>
+                    <div>
+                        <label>직위(직종)</label>
+                        <select id="workerType" onchange="triggerRecalc()">
+                            <option value="" disabled selected>직종 선택</option>
+                            <option value="regular">상시근무자</option>
+                            <option value="vacation">방학중 비근무자</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>근무시간</label>
+                        <select id="workHours" onchange="triggerRecalc()">
+                            <option value="" disabled selected>근무시간 선택</option>
+                            <option value="209,8">8시간 (209시간)</option>
+                            <option value="130,5">5시간 (130시간)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>생년월일</label>
+                        <input type="date" id="birthDate">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 산정 기간 -->
+            <div class="content-box">
+                <div class="section-title-row">
+                    <h2>2. 산정 기간</h2>
+                    <div class="header-actions">
+                        <button type="button" class="btn-reset" onclick="resetCalculator()">↺ 초기화</button>
+                        <button type="button" class="btn-print" onclick="printCalculator()">🖨 A4 인쇄</button>
+                    </div>
+                </div>
+
+                <div class="period-row">
+                    <div>
+                        <label>퇴직금 산정 시작일</label>
+                        <input type="date" id="calcStart" onchange="calcTotalDays('calcStart', 'calcEnd', 'calcTotal')">
+                    </div>
+                    <span>~</span>
+                    <div>
+                        <label>퇴직금 산정 종료일</label>
+                        <input type="date" id="calcEnd" onchange="calcTotalDays('calcStart', 'calcEnd', 'calcTotal'); updateTooltip();">
+                    </div>
+                    <div style="flex: 0.5;">
+                        <label>총 일수</label>
+                        <div class="total-days-box">
+                            <input type="text" id="calcTotal" readonly value="0"> 일
+                        </div>
+                    </div>
+                </div>
+
+                <div class="period-row" style="margin-top:20px;">
+                    <div>
+                        <label>산정 제외 시작일</label>
+                        <input type="date" id="exclStart" onchange="calcTotalDays('exclStart', 'exclEnd', 'exclTotal')">
+                    </div>
+                    <span>~</span>
+                    <div>
+                        <label>산정 제외 종료일</label>
+                        <input type="date" id="exclEnd" onchange="calcTotalDays('exclStart', 'exclEnd', 'exclTotal')">
+                    </div>
+                    <div style="flex: 0.5;">
+                        <label>제외 일수</label>
+                        <div class="total-days-box">
+                            <input type="text" id="exclTotal" readonly value="0"> 일
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-confirm" onclick="generateWageTables()">임금표 생성하기</button>
+            </div>
+
+            <!-- 3. 급여 입력 -->
+            <div class="content-box" id="wageSection" style="display: none;">
+                <h2>3. 평균임금 계산 (금액 입력)</h2>
+                <input type="hidden" id="total-3m-days">
+
+                <!-- [월정급여] 테이블 -->
+                <h3>월 정 급 여</h3>
+                <table class="calc-table" id="table-reg">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%; min-width: 90px;">구분</th>
+                            <th class="reg-col-h" contenteditable="true">1개월전</th>
+                            <th class="reg-col-h" contenteditable="true">2개월전</th>
+                            <th class="reg-col-h" contenteditable="true">3개월전</th>
+                            <th style="width: 15%; min-width: 80px;">합계</th>
+                            <th style="width: 65px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-reg">
+                        <tr class="ignore-sum" style="background-color: var(--input-bg);">
+                            <td style="font-weight: 700; color: #495057;">산정기간(일수)</td>
+                            <td class="period-display-td" contenteditable="true" oninput="updateTotalDaysFromCells()"></td>
+                            <td class="period-display-td" contenteditable="true" oninput="updateTotalDaysFromCells()"></td>
+                            <td class="period-display-td" contenteditable="true" oninput="updateTotalDaysFromCells()"></td>
+                            <td id="reg-total-d" style="font-weight: 700; color: var(--primary-navy); font-size: 1.1em;"></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">본봉</td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="row-sum transparent-input right-align" readonly value="0"></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">정액급식비</td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="row-sum transparent-input right-align" readonly value="0"></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">근속수당</td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="row-sum transparent-input right-align" readonly value="0"></td>
+                            <td>-</td>
+                        </tr>
+                        <tr id="row-overtime">
+                            <td style="font-weight: 600;">연장근로수당</td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>
+                            <td><input type="text" class="row-sum transparent-input right-align" readonly value="0"></td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="sum-row">
+                            <td>각 월별 합계금</td>
+                            <td><input type="text" class="transparent-input right-align reg-col-sum" readonly value="0"></td>
+                            <td><input type="text" class="transparent-input right-align reg-col-sum" readonly value="0"></td>
+                            <td><input type="text" class="transparent-input right-align reg-col-sum" readonly value="0"></td>
+                            <td><input type="text" id="reg-sum-total" class="transparent-input right-align" readonly value="0"></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div style="text-align: right; margin-top: 10px;">
+                    <button class="btn-add" style="margin-right: 4px;" onclick="addRegColumn()">+ 기간(열) 추가</button>
+                    <button class="btn-remove" style="margin-right: 20px;" onclick="removeRegColumn()">- 기간(열) 삭제</button>
+                    
+                    <button class="btn-add" style="margin-right: 4px;" onclick="addRegRow()">+ 수당(행) 추가</button>
+                    <button class="btn-remove" onclick="removeRegRow()">- 수당(행) 삭제</button>
+                </div>
+
+                <!-- [비월정급여] 테이블 -->
+                <h3 style="margin-top: 40px;">비 월 정 급 여</h3>
+                <table class="calc-table" id="table-nonreg">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">구분</th>
+                            <th style="width: 45%;">금액</th>
+                            <th style="width: 15%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-nonreg">
+                        <tr>
+                            <td style="font-weight: 600;">명절상여금(추석)</td>
+                            <td><input type="text" class="nonreg-val" oninput="formatAndCalc(this)"></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">명절상여금(설)</td>
+                            <td><input type="text" class="nonreg-val" oninput="formatAndCalc(this)"></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">정기상여금</td>
+                            <td><input type="text" class="nonreg-val" oninput="formatAndCalc(this)"></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;"><span id="annual-leave-label" class="tooltip-label" data-tooltip="퇴직금 산정기간(~까지)을 먼저 입력해주세요.">연차미사용수당</span></td>
+                            <td><input type="text" class="nonreg-val" oninput="formatAndCalc(this)"></td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="sum-row">
+                            <td>비월정급여 총 합계</td>
+                            <td><input type="text" id="nonreg-sum-total" class="transparent-input right-align" readonly value="0"></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div style="text-align: right; margin-top: 10px;">
+                    <button class="btn-add" style="margin-right: 4px;" onclick="addNonRegRow()">+ 수당 추가</button>
+                    <button class="btn-remove" onclick="removeNonRegRow()">- 수당 삭제</button>
+                </div>
+
+                <button class="btn-confirm" style="margin-top: 35px;" onclick="calculateFinalResults(true)">최종 산출 결과 확인하기</button>
+            </div>
+
+            <!-- 4. 최종 산출 결과 -->
+            <div class="content-box" id="resultSection" style="display: none;">
+                <h2>4. 퇴직금 산출공식</h2>
+                
+                <div style="background-color: #e7f5ff; border: 1px solid #a5d8ff; border-radius: 8px; padding: 15px 20px; margin-bottom: 25px; color: #1864ab; font-size: 0.95em; line-height: 1.6;">
+                    <strong>□ 퇴직금 계산공식:</strong><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1일 평균임금 × 30일 × (근무기간 총일수 ÷ 365)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;※ 1년은 365일로 계산<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;※ 1일 평균임금 = ④ ÷ 3개월 일수
+                </div>
+                
+                <div id="smartParseAlert" class="smart-parse-alert"></div>
+
+                <div class="result-box">
+                    <div class="result-row">
+                        <span>① 월정급여 총액</span>
+                        <span><span id="res-val1" style="font-weight:700;">0</span> 원</span>
+                    </div>
+                    <div class="result-row">
+                        <span>② 비월정급여 총액</span>
+                        <span><span id="res-val2" style="font-weight:700;">0</span> 원</span>
+                    </div>
+                    <div class="result-row">
+                        <span>③ 비월정급여 3개월 평균액 <span style="font-size:0.85em; color:#adb5bd;">(② × 3/12)</span></span>
+                        <span><span id="res-val3" style="font-weight:700;">0</span> 원</span>
+                    </div>
+                    <div class="result-row total-row">
+                        <span>④ 평균임금 산정 합계 금액 <span style="font-size:0.85em; color:#adb5bd;">(① + ③)</span></span>
+                        <span><span id="res-val4">0</span> 원</span>
+                    </div>
+                </div>
+
+                <table class="formula-table">
+                    <tr>
+                        <td class="title-col">○ 1일 평균임금</td>
+                        <td><span id="f-avg-wage" style="font-weight:700;">0</span> 원 <span style="font-size:0.9em; color:#868e96;">(합계금액 ÷ 3개월 총일수)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="title-col">○ 1일 통상임금</td>
+                        <td><span id="f-ord-wage" style="font-weight:700;">0</span> 원</td>
+                    </tr>
+                    <tr style="background-color: var(--bg-light);">
+                        <td class="title-col" style="color:var(--primary-navy);">○ 적용 1일 임금 <br><span style="font-size:0.85em; font-weight:normal;">(평균임금, 통상임금 중 더 큰 금액)</span></td>
+                        <td><span id="f-max-wage" style="font-weight:700; color:var(--primary-navy);">0</span> 원</td>
+                    </tr>
+                    <tr>
+                        <td class="title-col">○ 퇴 직 금</td>
+                        <td>
+                            ( <span id="f-final-wage" style="font-weight:600;">0</span> ) × 30일 × ( <span id="f-work-days" style="font-weight:600;">0</span> / 365 ) <br><br>
+                            = <span id="f-final-severance" class="highlight-final">0</span> 원
+                        </td>
+                    </tr>
+                </table>
+
+                <h3 style="margin-top:40px;">금회 적립 퇴직금 정산</h3>
+                <div class="result-box" style="border-color:var(--primary-navy); background-color:#f8faff;">
+                    <div class="result-row" style="border-bottom:none; margin-bottom:8px;">
+                        <span style="font-weight:600; color:var(--primary-navy);">▶ 퇴직금 총액</span>
+                        <span style="font-weight:700; font-size:1.1em;"><span id="final-total-sev">0</span> 원</span>
+                    </div>
+                    <div class="result-row" style="border-bottom:none; margin-bottom:8px;">
+                        <span style="font-weight:600;">▶ 기적립 퇴직금 (수기입력)</span>
+                        <span>
+                            <input type="text" id="prev-saved-sev" oninput="formatAndCalcPrev(this)" placeholder="0" 
+                                style="width:140px; text-align:right; font-weight:700; font-size:1.05em; padding:8px; border:1px solid #ced4da; border-radius:6px; background-color:#fff;"> 원
+                        </span>
+                    </div>
+                    <div class="result-row total-row" style="margin-top: 15px; border-top: 1px dashed #adb5bd; padding-top: 15px;">
+                        <span>▶ 금회 적립 퇴직금 <span style="font-size:0.85em; color:#868e96;">(총액 - 기적립)</span></span>
+                        <span style="color:#e03131;"><span id="current-save-sev">0</span> 원</span>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- 끝: calculator-container -->
+
+        <!-- 오른쪽: 2026년 기준 퇴직금 계산 예제 -->
+        <div class="example-container">
+            <div class="example-header">
+                퇴직금 계산 예제 (2026년 기준)
+            </div>
+            <div class="example-body">
+                <ul style="list-style-type: square; color: var(--text-main); font-weight: 500;">
+                    <li><strong>입사일자 :</strong> 2023년 10월 2일</li>
+                    <li><strong>퇴사일자 :</strong> 2026년 9월 16일</li>
+                    <li><strong>재직일수 :</strong> 1,080일</li>
+                    <li><strong>월 기본급 :</strong> 2,000,000원</li>
+                    <li><strong>월 기타수당 :</strong> 360,000원</li>
+                    <li><strong>연간 상여금 :</strong> 4,000,000원</li>
+                    <li><strong>연차수당 지급기준액 :</strong> 60,000원</li>
+                    <li><strong>연차수당은</strong> 퇴직 전전년도(2024년)에 발생한 휴가중 퇴직 전년도(2025년)에 미사용한 휴가 일수분의 합계</li>
+                </ul>
+
+                <div class="ex-subtitle">가. 퇴직전 3개월간 임금총액(세전금액)</div>
+                <table class="ex-table">
+                    <thead>
+                        <tr>
+                            <th style="width:30%">기간</th>
+                            <th style="width:20%">기간별일수</th>
+                            <th style="width:25%">기본급</th>
+                            <th style="width:25%">기타수당</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026.6.16<br>~2026.6.30</td>
+                            <td>15일</td>
+                            <td>1,000,000원</td>
+                            <td>180,000원</td>
+                        </tr>
+                        <tr>
+                            <td>2026.7.1<br>~2026.7.31</td>
+                            <td>31일</td>
+                            <td>2,000,000원</td>
+                            <td>360,000원</td>
+                        </tr>
+                        <tr>
+                            <td>2026.8.1<br>~2026.8.31</td>
+                            <td>31일</td>
+                            <td>2,000,000원</td>
+                            <td>360,000원</td>
+                        </tr>
+                        <tr>
+                            <td>2026.9.1<br>~2026.9.15</td>
+                            <td>15일</td>
+                            <td>1,000,000원</td>
+                            <td>180,000원</td>
+                        </tr>
+                        <tr style="background-color: var(--bg-light); font-weight:700;">
+                            <td>합계</td>
+                            <td>92일</td>
+                            <td>6,000,000원</td>
+                            <td>1,080,000원</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ex-subtitle">나. 평균임금의 산정</div>
+                <ul style="list-style-type: disc; padding-left:20px; color:var(--text-main);">
+                    <li><strong>총액 :</strong> 4,000,000원</li>
+                    <li><strong>연차수당 :</strong> 300,000원 <span style="font-size:0.9em; color:var(--text-muted);">(60,000원 × 5일)</span></li>
+                    <li><strong>A. 3개월간 임금총액 :</strong> 7,080,000원 <span style="font-size:0.9em; color:var(--text-muted);">= 6,000,000원 + 1,080,000원</span></li>
+                    <li><strong>B. 상여금 가산액 :</strong> 1,000,000원 <span style="font-size:0.9em; color:var(--text-muted);">= 4,000,000원 × (3개월/12개월)</span></li>
+                    <li><strong>C. 연차수당 가산액 :</strong> 75,000원 <span style="font-size:0.9em; color:var(--text-muted);">= (60,000원 × 5일) × (3개월/12개월)</span></li>
+                    <li style="margin-top:10px;"><strong>1일 평균임금</strong> = 퇴직일 이전 3개월간에 지급받은 임금 총액 (A+B+C) / 퇴직일 이전 3개월간의 총 일수</li>
+                    <li><strong>88,641원 31전</strong> = (7,080,000원 + 1,000,000원 + 75,000원) / 92</li>
+                </ul>
+
+                <div class="ex-subtitle" style="color:var(--primary-navy); background-color:#e7f5ff; padding:15px; border-radius:8px; text-align:center;">
+                    다. 퇴직금 = 1일 평균임금 × 30(일) × (재직일수/365)
+                </div>
+
+                <div class="ex-footer">
+                    ※ 퇴직소득세는 '국세청홈택스' 홈페이지에서 귀속년도별 퇴직소득 세액 계산 프로그램을 이용하여 계산 가능<br><br>
+                    (<a href="https://hometax.go.kr" target="_blank">https://hometax.go.kr</a>) → 상단 중앙 검색어 입력에 "퇴직소득 세액계산 프로그램" 입력 → 해당 귀속년도 퇴직소득 세액 계산 프로그램 선택
+                </div>
+            </div>
+        </div> <!-- 끝: example-container -->
+    </div> <!-- 끝: layout-wrapper -->
+
+    <script>
+        function parseNum(val) {
+            if (val === undefined || val === null || val === '') return 0;
+            let parsed = parseInt(String(val).replace(/[^0-9-]/g, ''), 10);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function formatAndCalc(input) {
+            try {
+                let val = input.value.replace(/,/g, '');
+                if (!isNaN(val) && val !== '') {
+                    input.value = Number(val).toLocaleString();
+                } else {
+                    input.value = val.replace(/[^0-9-]/g, '');
+                }
+
+                let tr = input.closest('tr');
+                if (tr && tr.parentElement && tr.parentElement.id === 'tbody-reg') {
+                    let inputs = tr.querySelectorAll('.reg-val');
+                    let rowSum = 0;
+                    inputs.forEach(function(inp) {
+                        rowSum += parseNum(inp.value);
+                    });
+                    let rowSumInput = tr.querySelector('.row-sum');
+                    if(rowSumInput) rowSumInput.value = (rowSum === 0) ? "0" : rowSum.toLocaleString();
+                }
+                updateTableTotals();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function formatAndCalcPrev(input) {
+            let val = input.value.replace(/,/g, '');
+            if (!isNaN(val) && val !== '') {
+                input.value = Number(val).toLocaleString();
+            } else {
+                input.value = val.replace(/[^0-9-]/g, '');
+            }
+            calcCurrentSave();
+        }
+
+        function triggerRecalc() {
+            if (document.getElementById('resultSection').style.display === 'block') {
+                calculateFinalResults(false);
+            }
+        }
+
+        function updateTableTotals() {
+            const numCols = document.querySelectorAll('.reg-col-h').length;
+            const colSums = new Array(numCols).fill(0);
+            let regTotalSum = 0;
+
+            document.querySelectorAll('#tbody-reg tr:not(.ignore-sum)').forEach(function(tr) {
+                let vals = tr.querySelectorAll('.reg-val');
+                let rowSum = 0;
+                vals.forEach((inp, idx) => {
+                    if (idx < numCols) {
+                        let val = parseNum(inp.value);
+                        colSums[idx] += val;
+                        rowSum += val;
+                    }
+                });
+                let rSum = tr.querySelector('.row-sum');
+                if (rSum) {
+                    rSum.value = rowSum === 0 ? "0" : rowSum.toLocaleString();
+                    regTotalSum += rowSum;
+                }
+            });
+
+            const footerInputs = document.querySelectorAll('#table-reg tfoot .reg-col-sum');
+            footerInputs.forEach((inp, idx) => {
+                if (colSums[idx] !== undefined) {
+                    inp.value = colSums[idx].toLocaleString();
+                }
+            });
+            document.getElementById('reg-sum-total').value = regTotalSum.toLocaleString();
+
+            let nonregSum = 0;
+            document.querySelectorAll('#tbody-nonreg .nonreg-val').forEach(function(inp) {
+                nonregSum += parseNum(inp.value);
+            });
+            document.getElementById('nonreg-sum-total').value = nonregSum.toLocaleString();
+
+            triggerRecalc();
+        }
+
+        function calcTotalDays(startId, endId, targetId) {
+            const start = document.getElementById(startId).value;
+            const end = document.getElementById(endId).value;
+            if (start && end) {
+                const sDate = new Date(start);
+                const eDate = new Date(end);
+                const diff = Math.floor((eDate - sDate) / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById(targetId).value = diff > 0 ? diff : 0;
+                triggerRecalc();
+            }
+        }
+
+        function updateTooltip() {
+            const endDate = document.getElementById('calcEnd').value;
+            const tooltipElem = document.getElementById('annual-leave-label');
+            if (tooltipElem) {
+                if (endDate) {
+                    const year = new Date(endDate).getFullYear();
+                    tooltipElem.setAttribute('data-tooltip', `${year - 1}년 2월 ~ ${year}년 1월에 지급한 연차미사용수당`);
+                } else {
+                    tooltipElem.setAttribute('data-tooltip', '퇴직금 산정기간(~까지)을 먼저 입력해주세요.');
+                }
+            }
+        }
+
+        function formatPeriodString(start, end, days) {
+            return `${start}<br>~ ${end}<br><span style='font-size:0.85em; color:#868e96;'>(${days}일)</span>`;
+        }
+
+        function updateTotalDaysFromCells() {
+            let totalDays = 0;
+            document.querySelectorAll('.period-display-td').forEach(td => {
+                let text = td.innerText.trim();
+                let match = text.match(/(\d+)\s*일/);
+                if (match) {
+                    totalDays += parseInt(match[1], 10);
+                } else {
+                    let pureNum = text.replace(/[^0-9]/g, '');
+                    if (pureNum.length > 0 && !text.includes('.') && !text.includes('~')) {
+                        totalDays += parseInt(pureNum, 10);
+                    }
+                }
+            });
+            document.getElementById('reg-total-d').innerText = totalDays + '일';
+            document.getElementById('total-3m-days').value = totalDays;
+            
+            triggerRecalc(); 
+        }
+
+        function generateWageTables() {
+            const type = document.getElementById('workerType').value;
+            const workHours = document.getElementById('workHours').value;
+            const endDate = document.getElementById('calcEnd').value;
+            
+            if (!type) { alert("1. 기본 정보 탭에서 '직위(직종)'을 선택해주세요."); return; }
+            if (!workHours) { alert("1. 기본 정보 탭에서 '근무시간'을 선택해주세요."); return; }
+            if (!endDate) { alert("2. 산정 기간 탭의 '종료일(~까지)'을 입력해주세요."); return; }
+
+            const endY = new Date(endDate).getFullYear();
+            let m1, m2, m3, d1, d2, d3, days1, days2, days3;
+
+            if (type === 'regular') {
+                m1 = `${endY - 1}년 12월`;
+                m2 = `${endY}년 1월`;
+                m3 = `${endY}년 2월`;
+                const leapFeb = new Date(endY, 2, 0).getDate(); 
+                d1 = formatPeriodString("12.01", "12.31", 31); days1 = 31;
+                d2 = formatPeriodString("01.01", "01.31", 31); days2 = 31;
+                d3 = formatPeriodString("02.01", `02.${leapFeb}`, leapFeb); days3 = leapFeb;
+            } else {
+                m1 = `${endY - 1}년 10월`;
+                m2 = `${endY - 1}년 11월`;
+                m3 = `${endY - 1}년 12월`;
+                d1 = formatPeriodString("10.01", "10.31", 31); days1 = 31;
+                d2 = formatPeriodString("11.01", "11.30", 30); days2 = 30;
+                d3 = formatPeriodString("12.01", "12.31", 31); days3 = 31;
+            }
+
+            const totalDays = days1 + days2 + days3;
+            document.getElementById('total-3m-days').value = totalDays;
+
+            const headers = document.querySelectorAll('.reg-col-h');
+            if(headers[0]) headers[0].innerText = m1;
+            if(headers[1]) headers[1].innerText = m2;
+            if(headers[2]) headers[2].innerText = m3;
+            
+            const pTds = document.querySelectorAll('.period-display-td');
+            if(pTds[0]) pTds[0].innerHTML = d1;
+            if(pTds[1]) pTds[1].innerHTML = d2;
+            if(pTds[2]) pTds[2].innerHTML = d3;
+
+            document.getElementById('reg-total-d').innerText = `${totalDays}일`;
+            document.getElementById('wageSection').style.display = 'block';
+            alert("급여 산정표가 생성되었습니다. 금액을 입력해주세요.\n※ 4분할 이상 필요한 경우 [기간(열) 추가] 버튼을 누르세요.");
+        }
+
+        function addRegColumn() {
+            const theadTr = document.querySelector('#table-reg thead tr');
+            const newTh = document.createElement('th');
+            newTh.contentEditable = 'true';
+            newTh.innerText = '기간입력';
+            newTh.className = 'reg-col-h';
+            theadTr.insertBefore(newTh, theadTr.cells[theadTr.cells.length - 2]);
+
+            const ignoreTr = document.querySelector('#tbody-reg .ignore-sum');
+            const newTdIgnore = document.createElement('td');
+            
+            // [신규] 툴팁 디자인(클래스)과 안내 문구를 설정
+            newTdIgnore.className = 'period-display-td tooltip-label';
+            newTdIgnore.contentEditable = 'true';
+            newTdIgnore.setAttribute('oninput', 'updateTotalDaysFromCells()');
+            newTdIgnore.setAttribute('data-tooltip', '옆 예시와 동일하게 입력하세요.');
+            newTdIgnore.innerText = '기간입력';
+            ignoreTr.insertBefore(newTdIgnore, ignoreTr.cells[ignoreTr.cells.length - 2]);
+
+            const tbodyRows = document.querySelectorAll('#tbody-reg tr:not(.ignore-sum)');
+            tbodyRows.forEach(tr => {
+                const newTd = document.createElement('td');
+                newTd.innerHTML = `<input type="text" class="reg-val" oninput="formatAndCalc(this)">`;
+                tr.insertBefore(newTd, tr.cells[tr.cells.length - 2]);
+            });
+
+            const tfootTr = document.querySelector('#table-reg tfoot tr');
+            const newTdFoot = document.createElement('td');
+            newTdFoot.innerHTML = `<input type="text" class="transparent-input right-align reg-col-sum" readonly value="0">`;
+            tfootTr.insertBefore(newTdFoot, tfootTr.cells[tfootTr.cells.length - 2]);
+
+            updateTableTotals();
+        }
+
+        function removeRegColumn() {
+            const theadTr = document.querySelector('#table-reg thead tr');
+            const numCols = document.querySelectorAll('.reg-col-h').length;
+            
+            if (numCols <= 1) {
+                alert("최소 1개의 기간(열)은 유지해야 합니다.");
+                return;
+            }
+
+            const colIndexToRemove = theadTr.cells.length - 3;
+            
+            theadTr.deleteCell(colIndexToRemove);
+            
+            const ignoreTr = document.querySelector('#tbody-reg .ignore-sum');
+            ignoreTr.deleteCell(colIndexToRemove);
+            
+            document.querySelectorAll('#tbody-reg tr:not(.ignore-sum)').forEach(tr => {
+                tr.deleteCell(colIndexToRemove);
+            });
+
+            const tfootTr = document.querySelector('#table-reg tfoot tr');
+            tfootTr.deleteCell(colIndexToRemove);
+
+            updateTableTotals();
+            updateTotalDaysFromCells(); 
+        }
+
+        function addRegRow() {
+            const tbody = document.getElementById('tbody-reg');
+            const numCols = document.querySelectorAll('.reg-col-h').length;
+            const tr = document.createElement('tr');
+
+            let tdHTML = `<td><input type="text" class="item-name" placeholder="항목명 직접입력"></td>`;
+            for (let i = 0; i < numCols; i++) {
+                tdHTML += `<td><input type="text" class="reg-val" oninput="formatAndCalc(this)"></td>`;
+            }
+            tdHTML += `<td><input type="text" class="row-sum transparent-input right-align" readonly value="0"></td>
+                       <td><button class="btn-delete" onclick="deleteRow(this)">삭제</button></td>`;
+            tr.innerHTML = tdHTML;
+
+            const overtimeRow = document.getElementById('row-overtime');
+            if (overtimeRow) {
+                tbody.insertBefore(tr, overtimeRow);
+            } else {
+                tbody.appendChild(tr);
+            }
+        }
+
+        function removeRegRow() {
+            const tbody = document.getElementById('tbody-reg');
+            const addedRows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.querySelector('.btn-delete'));
+            
+            if (addedRows.length > 0) {
+                addedRows[addedRows.length - 1].remove();
+                updateTableTotals();
+            } else {
+                alert("기본 수당 항목은 삭제할 수 없습니다.\n(해당 수당이 없는 경우 칸을 비워두거나 0으로 설정해주세요.)");
+            }
+        }
+
+        function addNonRegRow() {
+            const tbody = document.getElementById('tbody-nonreg');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="item-name" placeholder="항목명 직접입력"></td>
+                <td><input type="text" class="nonreg-val" oninput="formatAndCalc(this)"></td>
+                <td><button class="btn-delete" onclick="deleteRow(this)">삭제</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function removeNonRegRow() {
+            const tbody = document.getElementById('tbody-nonreg');
+            const addedRows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.querySelector('.btn-delete'));
+            
+            if (addedRows.length > 0) {
+                addedRows[addedRows.length - 1].remove();
+                updateTableTotals();
+            } else {
+                alert("기본 수당 항목은 삭제할 수 없습니다.\n(해당 수당이 없는 경우 칸을 비워두거나 0으로 설정해주세요.)");
+            }
+        }
+
+        function deleteRow(btn) {
+            btn.closest('tr').remove();
+            updateTableTotals();
+        }
+
+        function classifyAllowance(name) {
+            if (!name) return 'INCLUDE';
+            let normName = name.replace(/[^가-힣a-zA-Z0-9]/g, '');
+            if(normName.length === 0) return 'INCLUDE';
+
+            const excludeBothDB = ['가족수당', '자기계발비', '맞춤형복지비'];
+            for (let i = 0; i < excludeBothDB.length; i++) {
+                let exact = excludeBothDB[i];
+                if (exact.includes(normName) || normName.includes(exact.replace(/[^가-힣]/g, ''))) {
+                    return 'EXCLUDE_BOTH';
+                }
+            }
+
+            const excludeOrdDB = [
+                '연장근로수당', '야간근로수당', '휴일근로수당', 
+                '연차유급휴가미사용수당', '연차미사용수당', '연차수당', 
+                '시간외수당정액분', '시간외수당'
+            ];
+            
+            for (let i = 0; i < excludeOrdDB.length; i++) {
+                let exact = excludeOrdDB[i];
+                if (exact.includes(normName) || normName.includes(exact.replace(/[^가-힣]/g, ''))) {
+                    return 'EXCLUDE_ORD';
+                }
+            }
+            return 'INCLUDE';
+        }
+
+        function calculateFinalResults(isScroll) {
+            try {
+                let workHoursVal = document.getElementById('workHours').value;
+                if (!workHoursVal) {
+                    alert("1. 기본 정보 탭에서 '근무시간'을 선택해주세요.");
+                    return;
+                }
+                
+                let total3mDays = parseInt(document.getElementById('total-3m-days').value);
+                if (!total3mDays || isNaN(total3mDays)) {
+                    alert("2. 먼저 '임금표 생성하기' 버튼을 눌러 산정기간을 확정해주세요.");
+                    return;
+                }
+
+                let parts = workHoursVal.split(',');
+                let monthlyHours = parseFloat(parts[0]);
+                let dailyHours = parseFloat(parts[1]);
+
+                let validRegSum = 0;   
+                let ordM3Sum = 0;      
+                let parseNotices = []; 
+
+                document.querySelectorAll('#tbody-reg tr:not(.ignore-sum)').forEach(function(tr) {
+                    let nameInput = tr.querySelector('.item-name');
+                    let itemName = nameInput ? nameInput.value.trim() : tr.cells[0].innerText.trim();
+                    
+                    let inputs = tr.querySelectorAll('.reg-val');
+                    let rowSum = 0;
+                    let maxOrd = 0; 
+
+                    inputs.forEach(inp => {
+                        let val = parseNum(inp.value);
+                        rowSum += val;
+                        if (val > maxOrd) maxOrd = val; 
+                    });
+
+                    let cType = classifyAllowance(itemName);
+
+                    if (cType === 'EXCLUDE_BOTH') {
+                        if(rowSum > 0) parseNotices.push(`<strong>'${itemName}'</strong>: 기타금품 분류 ➔ 평균·통상임금 전체 제외`);
+                    } else if (cType === 'EXCLUDE_ORD') {
+                        validRegSum += rowSum; 
+                        if(rowSum > 0) parseNotices.push(`<strong>'${itemName}'</strong>: 통상임금 제외 기준 ➔ 평균임금에만 합산`);
+                    } else {
+                        validRegSum += rowSum;
+                        ordM3Sum += maxOrd;
+                    }
+                });
+
+                let validNonRegSum = 0; 
+                let bonusSumForOrd = 0; 
+                
+                document.querySelectorAll('#tbody-nonreg tr').forEach(function(tr) {
+                    let nameInput = tr.querySelector('.item-name');
+                    let itemName = nameInput ? nameInput.value.trim() : tr.cells[0].innerText.trim();
+                    let valInput = tr.querySelector('.nonreg-val');
+                    let val = valInput ? parseNum(valInput.value) : 0;
+
+                    let cType = classifyAllowance(itemName);
+
+                    if (cType === 'EXCLUDE_BOTH') {
+                        if(val > 0) parseNotices.push(`<strong>'${itemName}'</strong>: 기타금품 분류 ➔ 평균·통상임금 전체 제외`);
+                    } else if (cType === 'EXCLUDE_ORD') {
+                        validNonRegSum += val; 
+                        if(val > 0 && nameInput) parseNotices.push(`<strong>'${itemName}'</strong>: 통상임금 제외 기준 ➔ 평균임금에만 합산`);
+                    } else {
+                        validNonRegSum += val;
+                        bonusSumForOrd += val; 
+                    }
+                });
+
+                const alertBox = document.getElementById('smartParseAlert');
+                if (parseNotices.length > 0) {
+                    alertBox.innerHTML = `🤖 <strong>스마트 파싱 적용 결과:</strong><br>` + parseNotices.join('<br>');
+                    alertBox.style.display = 'block';
+                } else {
+                    alertBox.style.display = 'none';
+                }
+
+                let ordWage = (ordM3Sum + (bonusSumForOrd / 12)) / monthlyHours * dailyHours;
+                let nonregAvg = Math.floor((validNonRegSum * 3) / 12);
+                let totalSum = validRegSum + nonregAvg;
+
+                document.getElementById('res-val1').innerText = validRegSum.toLocaleString();
+                document.getElementById('res-val2').innerText = validNonRegSum.toLocaleString();
+                document.getElementById('res-val3').innerText = nonregAvg.toLocaleString();
+                document.getElementById('res-val4').innerText = totalSum.toLocaleString();
+
+                const avgWage = totalSum / total3mDays; 
+                const maxWage = Math.max(avgWage, ordWage);
+                const calcDays = parseInt(document.getElementById('calcTotal').value) || 0;
+                const exclDays = parseInt(document.getElementById('exclTotal').value) || 0;
+                const realWorkDays = calcDays - exclDays;
+
+                const exactSeverance = maxWage * 30 * (realWorkDays / 365);
+                const finalSeverance = Math.ceil(exactSeverance / 10) * 10;
+
+                document.getElementById('f-avg-wage').innerText = avgWage.toLocaleString(undefined, { maximumFractionDigits: 0 });
+                document.getElementById('f-ord-wage').innerText = ordWage.toLocaleString(undefined, { maximumFractionDigits: 0 });
+                document.getElementById('f-max-wage').innerText = maxWage.toLocaleString(undefined, { maximumFractionDigits: 0 });
+                document.getElementById('f-final-wage').innerText = maxWage.toLocaleString(undefined, { maximumFractionDigits: 0 });
+                
+                document.getElementById('f-work-days').innerText = realWorkDays;
+                document.getElementById('f-final-severance').innerText = finalSeverance.toLocaleString();
+
+                document.getElementById('resultSection').style.display = 'block';
+                calcCurrentSave();
+                
+                if(isScroll === true) {
+                    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("계산 중 오류가 발생했습니다. 입력값을 다시 확인해주세요.\n(에러: " + error.message + ")");
+            }
+        }
+
+        function calcCurrentSave() {
+            let totalSev = parseNum(document.getElementById('f-final-severance').innerText);
+            document.getElementById('final-total-sev').innerText = totalSev.toLocaleString();
+            
+            let prevSev = parseNum(document.getElementById('prev-saved-sev').value);
+            let currentSev = totalSev - prevSev;
+            
+            document.getElementById('current-save-sev').innerText = currentSev.toLocaleString();
+        }
+
+        function resetCalculator() {
+            const confirmed = confirm("입력한 기본정보, 산정기간, 급여항목 및 계산결과를 모두 초기화하시겠습니까?");
+            if (!confirmed) return;
+
+            document.getElementById('workerName').value = '';
+            document.getElementById('birthDate').value = '';
+            document.getElementById('workerType').selectedIndex = 0;
+            document.getElementById('workHours').selectedIndex = 0;
+
+            document.getElementById('calcStart').value = '';
+            document.getElementById('calcEnd').value = '';
+            document.getElementById('calcTotal').value = '0';
+            document.getElementById('exclStart').value = '';
+            document.getElementById('exclEnd').value = '';
+            document.getElementById('exclTotal').value = '0';
+            document.getElementById('total-3m-days').value = '';
+
+            while (document.querySelectorAll('.reg-col-h').length > 3) {
+                const theadTr = document.querySelector('#table-reg thead tr');
+                const colIndexToRemove = theadTr.cells.length - 3;
+                theadTr.deleteCell(colIndexToRemove);
+                document.querySelector('#tbody-reg .ignore-sum').deleteCell(colIndexToRemove);
+                document.querySelectorAll('#tbody-reg tr:not(.ignore-sum)').forEach(tr => tr.deleteCell(colIndexToRemove));
+                document.querySelector('#table-reg tfoot tr').deleteCell(colIndexToRemove);
+            }
+            while (document.querySelectorAll('.reg-col-h').length < 3) {
+                addRegColumn();
+            }
+
+            document.querySelectorAll('#tbody-reg tr').forEach(function(tr) {
+                if (tr.querySelector('.item-name')) tr.remove();
+            });
+            document.querySelectorAll('#tbody-nonreg tr').forEach(function(tr) {
+                if (tr.querySelector('.item-name')) tr.remove();
+            });
+
+            document.querySelectorAll('.reg-val, .nonreg-val').forEach(function(input) { input.value = ''; });
+            document.querySelectorAll('.row-sum').forEach(function(input) { input.value = '0'; });
+
+            const footSums = document.querySelectorAll('.reg-col-sum');
+            footSums.forEach(inp => inp.value = '0');
+            document.getElementById('reg-sum-total').value = '0';
+            document.getElementById('nonreg-sum-total').value = '0';
+
+            const headers = document.querySelectorAll('.reg-col-h');
+            if(headers[0]) headers[0].innerText = '1개월전';
+            if(headers[1]) headers[1].innerText = '2개월전';
+            if(headers[2]) headers[2].innerText = '3개월전';
+            
+            const pTds = document.querySelectorAll('.period-display-td');
+            pTds.forEach(td => td.innerHTML = '');
+            document.getElementById('reg-total-d').innerText = '';
+
+            const resultIds = [
+                'res-val1', 'res-val2', 'res-val3', 'res-val4',
+                'f-avg-wage', 'f-ord-wage', 'f-max-wage', 'f-final-wage',
+                'f-work-days', 'f-final-severance', 'final-total-sev', 'current-save-sev'
+            ];
+            resultIds.forEach(function(id) { document.getElementById(id).innerText = '0'; });
+
+            document.getElementById('prev-saved-sev').value = '';
+            document.getElementById('smartParseAlert').style.display = 'none';
+
+            document.getElementById('wageSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'none';
+
+            updateTooltip();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function printCalculator() {
+            const wageSectionVisible = document.getElementById('wageSection').style.display === 'block';
+            if (!wageSectionVisible) {
+                alert("먼저 산정기간을 입력한 후 '임금표 생성하기'를 눌러주세요.");
+                return;
+            }
+
+            const resultSectionVisible = document.getElementById('resultSection').style.display === 'block';
+            if (!resultSectionVisible) { calculateFinalResults(false); }
+
+            function getElementText(id) {
+                const element = document.getElementById(id);
+                return element ? element.innerText.trim() : '0';
+            }
+            function getInputValue(id) {
+                const element = document.getElementById(id);
+                return element && element.value ? element.value : '-';
+            }
+            function getSelectedText(id) {
+                const select = document.getElementById(id);
+                if (!select || select.selectedIndex < 0) return '-';
+                return select.options[select.selectedIndex].text;
+            }
+            function toMoney(value) { return parseNum(value).toLocaleString() + '원'; }
+            function addCell(row, text, tagName) {
+                const cell = document.createElement(tagName || 'td');
+                cell.innerText = text;
+                row.appendChild(cell);
+            }
+
+            const oldPrintSheet = document.getElementById('printSheet');
+            if (oldPrintSheet) oldPrintSheet.remove();
+
+            const printSheet = document.createElement('div');
+            printSheet.id = 'printSheet';
+
+            const title = document.createElement('div');
+            title.className = 'print-title';
+            title.innerText = '학교회계 교육공무직원 퇴직연금(DB) 모의 계산기';
+            printSheet.appendChild(title);
+
+            const infoTable = document.createElement('table');
+            infoTable.className = 'print-info-table';
+            const infoRows = [
+                ['성명', getInputValue('workerName'), '직위(직종)', getSelectedText('workerType')],
+                ['근무시간', getSelectedText('workHours'), '생년월일', getInputValue('birthDate')],
+                ['재직 산정기간', `${getInputValue('calcStart')} ~ ${getInputValue('calcEnd')} (${getInputValue('calcTotal')}일)`, '', ''],
+                ['산정 제외기간', `${getInputValue('exclStart')} ~ ${getInputValue('exclEnd')} (${getInputValue('exclTotal')}일)`, '', '']
+            ];
+            infoRows.forEach(function(data, index) {
+                const row = document.createElement('tr');
+                if (index >= 2) {
+                    addCell(row, data[0], 'th');
+                    const td = document.createElement('td');
+                    td.colSpan = 3;
+                    td.innerText = data[1];
+                    row.appendChild(td);
+                } else {
+                    addCell(row, data[0], 'th'); addCell(row, data[1]);
+                    addCell(row, data[2], 'th'); addCell(row, data[3]);
+                }
+                infoTable.appendChild(row);
+            });
+            printSheet.appendChild(infoTable);
+
+            const regTitle = document.createElement('div');
+            regTitle.className = 'print-section-title';
+            regTitle.innerText = '월정급여';
+            printSheet.appendChild(regTitle);
+
+            const regTable = document.createElement('table');
+            regTable.className = 'print-table';
+            
+            const regThead = document.createElement('thead');
+            const regHeaderRow = document.createElement('tr');
+            addCell(regHeaderRow, '항목', 'th');
+            document.querySelectorAll('.reg-col-h').forEach(th => {
+                addCell(regHeaderRow, th.innerText, 'th');
+            });
+            addCell(regHeaderRow, '합계', 'th');
+            regThead.appendChild(regHeaderRow);
+            regTable.appendChild(regThead);
+
+            const regTbody = document.createElement('tbody');
+            document.querySelectorAll('#tbody-reg tr:not(.ignore-sum)').forEach(function(tr) {
+                const nameInput = tr.querySelector('.item-name');
+                const itemName = nameInput ? nameInput.value.trim() : tr.cells[0].innerText.trim();
+                const values = tr.querySelectorAll('.reg-val');
+                const rowSumInput = tr.querySelector('.row-sum');
+                const rowSum = rowSumInput ? parseNum(rowSumInput.value) : 0;
+                
+                if (!itemName || rowSum === 0) return;
+                
+                const row = document.createElement('tr');
+                addCell(row, itemName);
+                values.forEach(v => addCell(row, toMoney(v ? v.value : 0)));
+                addCell(row, toMoney(rowSum));
+                regTbody.appendChild(row);
+            });
+            regTable.appendChild(regTbody);
+
+            const regTfoot = document.createElement('tfoot');
+            const regTotalRow = document.createElement('tr');
+            addCell(regTotalRow, '합계', 'th');
+            document.querySelectorAll('.reg-col-sum').forEach(inp => {
+                addCell(regTotalRow, toMoney(inp.value));
+            });
+            addCell(regTotalRow, toMoney(getInputValue('reg-sum-total')));
+            regTfoot.appendChild(regTotalRow);
+            regTable.appendChild(regTfoot);
+            printSheet.appendChild(regTable);
+
+            const nonregTitle = document.createElement('div');
+            nonregTitle.className = 'print-section-title';
+            nonregTitle.innerText = '비월정급여';
+            printSheet.appendChild(nonregTitle);
+
+            const nonregTable = document.createElement('table');
+            nonregTable.className = 'print-table';
+            const nonregThead = document.createElement('thead');
+            const nonregHeaderRow = document.createElement('tr');
+            addCell(nonregHeaderRow, '항목', 'th');
+            addCell(nonregHeaderRow, '금액', 'th');
+            nonregThead.appendChild(nonregHeaderRow);
+            nonregTable.appendChild(nonregThead);
+
+            const nonregTbody = document.createElement('tbody');
+            document.querySelectorAll('#tbody-nonreg tr').forEach(function(tr) {
+                const nameInput = tr.querySelector('.item-name');
+                const itemName = nameInput ? nameInput.value.trim() : tr.cells[0].innerText.trim();
+                const valueInput = tr.querySelector('.nonreg-val');
+                const value = valueInput ? parseNum(valueInput.value) : 0;
+                
+                if (!itemName || value === 0) return;
+                
+                const row = document.createElement('tr');
+                addCell(row, itemName);
+                addCell(row, toMoney(value));
+                nonregTbody.appendChild(row);
+            });
+            nonregTable.appendChild(nonregTbody);
+
+            const nonregTfoot = document.createElement('tfoot');
+            const nonregTotalRow = document.createElement('tr');
+            addCell(nonregTotalRow, '합계', 'th');
+            addCell(nonregTotalRow, toMoney(getInputValue('nonreg-sum-total')));
+            nonregTfoot.appendChild(nonregTotalRow);
+            nonregTable.appendChild(nonregTfoot);
+            printSheet.appendChild(nonregTable);
+
+            const resultTitle = document.createElement('div');
+            resultTitle.className = 'print-section-title';
+            resultTitle.innerText = '4. 퇴직금 산출공식';
+            printSheet.appendChild(resultTitle);
+
+            const printFormulaBox = document.createElement('div');
+            printFormulaBox.style.border = '1px solid #a5d8ff';
+            printFormulaBox.style.backgroundColor = '#e7f5ff';
+            printFormulaBox.style.padding = '8px 12px';
+            printFormulaBox.style.marginBottom = '10px';
+            printFormulaBox.style.color = '#1864ab';
+            printFormulaBox.style.fontSize = '8.5pt';
+            printFormulaBox.style.lineHeight = '1.4';
+            printFormulaBox.innerHTML = `
+                <strong>□ 퇴직금 계산공식:</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1일 평균임금 × 30일 × (근무기간 총일수 ÷ 365)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;※ 1년은 365일로 계산<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;※ 1일 평균임금 = ④ ÷ 3개월 일수
+            `;
+            printSheet.appendChild(printFormulaBox);
+
+            const resultTable = document.createElement('table');
+            resultTable.className = 'print-result-table';
+            
+            const r1 = document.createElement('tr');
+            addCell(r1, '① 월정급여 총액', 'th'); addCell(r1, toMoney(getElementText('res-val1')));
+            addCell(r1, '② 비월정급여 총액', 'th'); addCell(r1, toMoney(getElementText('res-val2')));
+            resultTable.appendChild(r1);
+
+            const r2 = document.createElement('tr');
+            addCell(r2, '③ 비월정급여 3개월 평균', 'th'); addCell(r2, toMoney(getElementText('res-val3')));
+            addCell(r2, '④ 평균임금 산정 합계', 'th'); addCell(r2, toMoney(getElementText('res-val4')));
+            resultTable.appendChild(r2);
+
+            const r3 = document.createElement('tr');
+            addCell(r3, '1일 평균임금', 'th'); addCell(r3, toMoney(getElementText('f-avg-wage')));
+            addCell(r3, '1일 통상임금', 'th'); addCell(r3, toMoney(getElementText('f-ord-wage')));
+            resultTable.appendChild(r3);
+
+            const r4 = document.createElement('tr');
+            addCell(r4, '적용 1일 임금', 'th');
+            const tdR4 = document.createElement('td');
+            tdR4.colSpan = 3;
+            tdR4.innerText = toMoney(getElementText('f-max-wage'));
+            r4.appendChild(tdR4);
+            resultTable.appendChild(r4);
+
+            const r5 = document.createElement('tr');
+            addCell(r5, '퇴직금 산출식', 'th');
+            const tdR5 = document.createElement('td');
+            tdR5.colSpan = 3;
+            tdR5.innerText = `( ${getElementText('f-final-wage')} ) × 30일 × ( ${getElementText('f-work-days')} / 365 )`;
+            r5.appendChild(tdR5);
+            resultTable.appendChild(r5);
+
+            const r6 = document.createElement('tr');
+            addCell(r6, '퇴직금 총액', 'th');
+            const tdR6 = document.createElement('td');
+            tdR6.colSpan = 3;
+            tdR6.className = 'print-final';
+            tdR6.innerText = toMoney(getElementText('f-final-severance'));
+            r6.appendChild(tdR6);
+            resultTable.appendChild(r6);
+
+            const r7 = document.createElement('tr');
+            addCell(r7, '기적립 퇴직금', 'th');
+            const tdR7 = document.createElement('td');
+            tdR7.colSpan = 3;
+            tdR7.innerText = toMoney(getInputValue('prev-saved-sev'));
+            r7.appendChild(tdR7);
+            resultTable.appendChild(r7);
+
+            const currentSaveRow = document.createElement('tr');
+            addCell(currentSaveRow, '금회 적립 퇴직금', 'th');
+            const currentSaveValue = document.createElement('td');
+            currentSaveValue.colSpan = 3;
+            currentSaveValue.className = 'print-current-final';
+            currentSaveValue.innerText = toMoney(getElementText('current-save-sev'));
+            currentSaveRow.appendChild(currentSaveValue);
+            resultTable.appendChild(currentSaveRow);
+            
+            printSheet.appendChild(resultTable);
+
+            const now = new Date();
+            const printDate = document.createElement('div');
+            printDate.className = 'print-date';
+            printDate.innerText = `출력일: ${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}.`;
+            printSheet.appendChild(printDate);
+
+            document.body.appendChild(printSheet);
+            window.print();
+        }
+    </script>
+</body>
+</html>
